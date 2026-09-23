@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <h1>{{ post.title }}</h1>
-    <p>by {{ post.author.username }} on {{ post.date_posted.strftime('%Y-%m-%d') }}</p>
+    <p>by {{ post.author.username }} · {{ post.date_posted | time_ago }}</p>
     <p>{{ post.content }}</p>
 
     {% if current_user.is_authenticated and current_user == post.author %}

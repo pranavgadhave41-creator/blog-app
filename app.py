@@ -2,12 +2,27 @@ from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Post, Comment
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'change-this-to-something-random'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
 
 db.init_app(app)
+
+def time_ago(dt):
+    diff = datetime.utcnow() - dt
+    seconds = diff.total_seconds()
+    if seconds < 60:
+        return "just now"
+    elif seconds < 3600:
+        return f"{int(seconds // 60)} minutes ago"
+    elif seconds < 86400:
+        return f"{int(seconds // 3600)} hours ago"
+    else:
+        return f"{int(seconds // 86400)} days ago"
+
+app.jinja_env.filters['time_ago'] = time_ago
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -92,6 +107,7 @@ def create_post():
 
     return render_template('create_post.html')
 
+
 @app.route('/post/<int:post_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_post(post_id):
@@ -121,6 +137,7 @@ def delete_post(post_id):
     db.session.commit()
     return redirect(url_for('index'))
 
+
 @app.route('/post/<int:post_id>/comment', methods=['POST'])
 @login_required
 def add_comment(post_id):
@@ -133,5 +150,3 @@ def add_comment(post_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
