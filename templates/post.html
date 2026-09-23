@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>{{ post.title }}</h1>
+    <p>by {{ post.author.username }} on {{ post.date_posted.strftime('%Y-%m-%d') }}</p>
+    <p>{{ post.content }}</p>
+
+    {% if current_user.is_authenticated and current_user == post.author %}
+        <a href="{{ url_for('edit_post', post_id=post.id) }}">Edit</a>
+        <a href="{{ url_for('delete_post', post_id=post.id) }}">Delete</a>
+    {% endif %}
+
+    <hr>
+    <h3>Comments</h3>
+    {% for comment in post.comments %}
+        <p>{{ comment.content }} — {{ comment.date_posted.strftime('%Y-%m-%d') }}</p>
+    {% endfor %}
+
+    {% if current_user.is_authenticated %}
+        <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
+            <textarea name="content" required></textarea><br>
+            <button type="submit">Add Comment</button>
+        </form>
+    {% else %}
+        <p><a href="{{ url_for('login') }}">Login</a> to comment.</p>
+    {% endif %}
+{% endblock %}
